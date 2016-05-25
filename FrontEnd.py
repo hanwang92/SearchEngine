@@ -18,7 +18,7 @@ from beaker.middleware import SessionMiddleware
 from beaker.cache import CacheManager
 from beaker.util import parse_cache_config_options
 
-iniTable = '''<table><tr><th align = "left">Search Results</th></tr>'''
+iniTable = '''<table><tr><th align = "left">Search Results</th></tr><tr></tr><tr></tr><tr></tr>'''
 endTable = '''</table> </body>'''
 endHTML = '''</html> '''
 
@@ -60,8 +60,6 @@ dns = 'http://ec2-' + ipaddr + '.compute-1.amazonaws.com:8080'
 f.close()
 
 redirect_uri = dns + '/redirect'
-#redirect_uri = 'http://ec2-54-164-169-56.compute-1.amazonaws.com:8080/redirect'
-#redirect_uri = 'http://localhost:8080/redirect'
 client_id = '569529233074-a9eq4l7argkbjfv1opcp2kdbf2b2hc2b.apps.googleusercontent.com'
 client_secret = 'ugqrZlVwM814f9Rmc5_3UGPZ'
 
@@ -197,7 +195,7 @@ def searchpages(pageid, keyword):
     naviPage = []
     counter = 0
 
-    c.execute("SELECT DISTINCT DocIndex.url, DocIndex.doc_id FROM Lexicon, DocIndex, InvertedIndex, PageRank WHERE Lexicon.word_id = InvertedIndex.word_id AND InvertedIndex.doc_id = DocIndex.doc_id AND InvertedIndex.doc_id=PageRank.doc_id AND Lexicon.word LIKE ? ORDER BY PageRank.rank", firstWord)
+    c.execute("SELECT DISTINCT DocIndex.url, DocTitle.title FROM Lexicon, DocIndex, DocTitle, InvertedIndex, PageRank WHERE Lexicon.word_id = InvertedIndex.word_id AND InvertedIndex.doc_id = DocIndex.doc_id AND DocTitle.doc_id = DocIndex.doc_id AND InvertedIndex.doc_id=PageRank.doc_id AND Lexicon.word LIKE ? ORDER BY PageRank.rank", firstWord)
 
     result = c.fetchall()
     print result
@@ -219,7 +217,7 @@ def searchpages(pageid, keyword):
         #print soup.title.string
         ###
         print int(floor(counter/10))
-        naviPage[int(floor((counter-1)/10))] += ('<tr><td> Doc ID '+ url[2][2:-1] + "</td></tr>" + '<tr><td><a href="' + url[1] + '" target="_blank">'+ url[1] + "</a></td></tr>")
+        naviPage[int(floor((counter-1)/10))] += ('<tr><td><a href="' + url[1] + '" target="_blank">'+ url[3] + "</a></td></tr>" + '<tr><td>'+ url[1] + "</td><td></td></tr><tr></tr><tr></tr><tr></tr>")
 
     if counter == 0:
         return template('error_anonymous',var2=keyword)
@@ -228,8 +226,6 @@ def searchpages(pageid, keyword):
     naviBar = "Go to Page:<br>"+"""<table border = "0"><tr>"""
     print (len(naviPage))
     for pagenum in range(0, len(naviPage)):
-        #naviBar += '<th><a href= "http://ec2-54-84-115-83.compute-1.amazonaws.com:8080/anonymous/' + keyword + '/' + str(pagenum+0) + '">' + str(pagenum+1) + "<a></th>"
-        #naviBar += '<th><a href= "http://localhost:8080/anonymous/' + keyword + '/' + str(pagenum+0) + '">' + str(pagenum+1) + "<a></th>"
         naviBar += '<th><a href= "' + dns + '/anonymous/' + keyword + '/' + str(pagenum+0) + '">' + str(pagenum+1) + "<a></th>"
 
     naviBar += "</tr>"
@@ -252,7 +248,7 @@ def searchpages(pageid, keyword):
     naviPage = []
     counter = 0
 
-    c.execute("SELECT DISTINCT DocIndex.url, DocIndex.doc_id FROM Lexicon, DocIndex, InvertedIndex, PageRank WHERE Lexicon.word_id = InvertedIndex.word_id AND InvertedIndex.doc_id = DocIndex.doc_id AND InvertedIndex.doc_id=PageRank.doc_id AND Lexicon.word LIKE ? ORDER BY RANDOM()", firstWord)
+    c.execute("SELECT DISTINCT DocIndex.url, DocTitle.title FROM Lexicon, DocIndex, DocTitle, InvertedIndex, PageRank WHERE Lexicon.word_id = InvertedIndex.word_id AND InvertedIndex.doc_id = DocIndex.doc_id AND DocTitle.doc_id = DocIndex.doc_id AND InvertedIndex.doc_id=PageRank.doc_id AND Lexicon.word LIKE ? ORDER BY RANDOM()", firstWord)
 
     result = c.fetchall()
     print result
@@ -267,7 +263,7 @@ def searchpages(pageid, keyword):
         print url
         print counter
         print int(floor(counter/10))
-        naviPage[int(floor((counter-1)/10))] += ('<tr><td> Doc ID '+ url[2][2:-1] + "</td></tr>" + '<tr><td><a href="' + url[1] + '" target="_blank">'+ url[1] + "</a></td></tr>")
+        naviPage[int(floor((counter-1)/10))] += ('<tr><td><a href="' + url[1] + '" target="_blank">'+ url[3] + "</a></td></tr>" + '<tr><td>'+ url[1] + "</td><td></td></tr><tr></tr><tr></tr><tr></tr>")
 
 
     if counter == 0:
@@ -277,8 +273,6 @@ def searchpages(pageid, keyword):
     naviBar = "Go to Page:<br>"+"""<table border = "0"><tr>"""
     print (len(naviPage))
     for pagenum in range(0, len(naviPage)):
-        #naviBar += '<th><a href= "http://ec2-54-84-115-83.compute-1.amazonaws.com:8080/lucky/' + keyword + '/' + str(pagenum+0) + '">' + str(pagenum+1) + "<a></th>"
-        #naviBar += '<th><a href= "http://localhost:8080/lucky/' + keyword + '/' + str(pagenum+0) + '">' + str(pagenum+1) + "<a></th>"
         naviBar += '<th><a href= "' + dns + '/lucky/' + keyword + '/' + str(pagenum+0) + '">' + str(pagenum+1) + "<a></th>"
         
 
@@ -293,6 +287,5 @@ def searchpages(pageid, keyword):
     
 ###AWS uri###
 run(host="0.0.0.0", port="8080", debug=True, app=wsgi_app)
-#run(host="localhost", port="8080", debug=True, app=wsgi_app)
 
 
